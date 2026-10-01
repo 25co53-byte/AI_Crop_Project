@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Crop AI </title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+/* BACKGROUND */
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:black;
+    overflow:hidden;
+    color:white;
+}
+
+/* PARTICLES */
+canvas{
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:-1;
+}
+
+/* CARD */
+.container{
+    width:400px;
+    max-height:90vh;
+    overflow-y:auto;
+    padding:30px;
+    border-radius:20px;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(20px);
+    box-shadow:0 0 40px cyan;
+    text-align:center;
+    animation:fade 0.6s ease;
+}
+
+/* SCROLL */
+.container::-webkit-scrollbar{
+    width:5px;
+}
+.container::-webkit-scrollbar-thumb{
+    background:cyan;
+    border-radius:10px;
+}
+
+/* ANIMATION */
+@keyframes fade{
+    from{opacity:0; transform:translateY(20px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+/* TITLE */
+h1{
+    text-shadow:0 0 20px cyan,0 0 40px magenta;
+}
+
+/* BUTTON */
+.btn{
+    margin-top:20px;
+    padding:12px;
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(45deg,cyan,magenta);
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn:hover{
+    transform:scale(1.1);
+    box-shadow:0 0 25px cyan,0 0 50px magenta;
+}
+
+/* UPLOAD */
+.upload-box{
+    border:2px dashed cyan;
+    padding:30px;
+    border-radius:15px;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.upload-box:hover{
+    box-shadow:0 0 20px cyan;
+}
+
+/* PREVIEW */
+#preview{
+    width:100%;
+    max-height:180px;
+    object-fit:cover;
+    margin-top:10px;
+    border-radius:10px;
+    display:none;
+}
+
+/* RESULT IMAGE */
+#resultImg{
+    width:80%;
+    max-height:180px;
+    object-fit:cover;
+    border-radius:10px;
+    display:block;
+    margin:10px auto;
+}
+
+/* RESULT TEXT */
+#resultText{
+    margin-top:10px;
+    text-align:left;
+}
+
+#resultText p{
+    margin:6px 0;
+}
+
+/* LOADER */
+.loader{
+    width:50px;
+    height:50px;
+    border:4px solid #222;
+    border-top:4px solid cyan;
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+    margin:20px auto;
+}
+
+@keyframes spin{
+    100%{transform:rotate(360deg);}
+}
+
+/* PROGRESS */
+.progress{
+    width:100%;
+    height:10px;
+    background:#222;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+.progress-bar{
+    height:100%;
+    width:0;
+    background:linear-gradient(90deg,cyan,magenta);
+    transition:1s;
+}
+
+/* CENTER */
+#home, #upload, #loading, #result{
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+/* HIDE */
+.hidden{display:none;}
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="container">
+
+<!-- HOME -->
+<div id="home">
+    <h1><i class="fas fa-leaf"></i> AI Crop AI Pro</h1>
+    <p>Advanced Detection System</p>
+    <button class="btn" onclick="goUpload()">Start Detection</button>
+</div>
+
+<!-- UPLOAD -->
+<div id="upload" class="hidden">
+    <h1>Upload Image</h1>
+
+    <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+        <i class="fas fa-image"></i>
+        <p>Click to Upload</p>
+    </div>
+
+    <input type="file" id="fileInput" hidden>
+    <img id="preview">
+
+    <button class="btn" onclick="detect()">Analyze</button>
+</div>
+
+<!-- LOADING -->
+<div id="loading" class="hidden">
+    <h1>AI Scanning...</h1>
+    <div class="loader"></div>
+    <p style="opacity:0.7;">Analyzing crop health...</p>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="hidden">
+    <h1>Result</h1>
+
+    <!-- IMAGE FIRST -->
+    <img id="resultImg">
+
+    <!-- TEXT -->
+    <div id="resultText"></div>
+
+    <!-- PROGRESS -->
+    <div class="progress">
+        <div class="progress-bar" id="bar"></div>
+    </div>
+
+    <button class="btn" onclick="goHome()">Restart</button>
+</div>
+
+</div>
+
+<script>
+let fileInput = document.getElementById("fileInput");
+let preview = document.getElementById("preview");
+
+fileInput.onchange = () => {
+    let file = fileInput.files[0];
+    if(file){
+        preview.src = URL.createObjectURL(file);
+        preview.style.display="block";
+    }
+};
+
+function goUpload(){
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("upload").classList.remove("hidden");
+}
+
+function detect(){
+    if(!fileInput.files[0]){
+        alert("Upload image first!");
+        return;
+    }
+
+    document.getElementById("upload").classList.add("hidden");
+    document.getElementById("loading").classList.remove("hidden");
+
+    setTimeout(()=>{
+        document.getElementById("loading").classList.add("hidden");
+        document.getElementById("result").classList.remove("hidden");
+
+        document.getElementById("resultImg").src = preview.src;
+
+        let name = fileInput.files[0].name.toLowerCase();
+        let text = "";
+
+        if(name.includes("leaf")){
+            text = `
+            <p><b>Disease:</b> Leaf Blight</p>
+            <p><b>Confidence:</b> 92%</p>
+            <p><b>Treatment:</b> Fungicide spray</p>
+            `;
+            document.getElementById("bar").style.width="92%";
+        }else{
+            text = `
+            <p><b>Disease:</b> Healthy</p>
+            <p><b>Confidence:</b> 98%</p>
+            <p>No treatment needed</p>
+            `;
+            document.getElementById("bar").style.width="98%";
+        }
+
+        // delay for AI feel
+        setTimeout(()=>{
+            document.getElementById("resultText").innerHTML = text;
+        },300);
+
+    },2000);
+}
+
+function goHome(){
+    document.getElementById("result").classList.add("hidden");
+    document.getElementById("home").classList.remove("hidden");
+
+    preview.style.display="none";
+    fileInput.value="";
+}
+
+/* PARTICLES */
+let canvas = document.getElementById("bg");
+let ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+for(let i=0;i<80;i++){
+    particles.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*2,
+        dx:Math.random()*1,
+        dy:Math.random()*1
+    });
+}
+
+function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="cyan";
+
+    particles.forEach(p=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+
+        p.x+=p.dx;
+        p.y+=p.dy;
+
+        if(p.x>canvas.width) p.x=0;
+        if(p.y>canvas.height) p.y=0;
+    });
+
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Crop Login</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+/* 🌌 BACKGROUND */
+body{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:black;
+    overflow:hidden;
+    color:white;
+}
+
+/* ✨ PARTICLES */
+canvas{
+    position:absolute;
+    top:0;
+    left:0;
+    z-index:-1;
+}
+
+/* 🔥 NEON RUNNING GRADIENT BORDER */
+.container{
+    width:380px;
+    padding:2px;
+    border-radius:20px;
+    background:linear-gradient(45deg, cyan, magenta, blue, cyan);
+    background-size:400%;
+    animation:glow 6s linear infinite;
+}
+
+@keyframes glow{
+    0%{background-position:0%;}
+    100%{background-position:400%;}
+}
+
+/* GLASS CARD */
+.inner{
+    padding:30px;
+    border-radius:18px;
+    background:rgba(0,0,0,0.8);
+    backdrop-filter:blur(20px);
+    text-align:center;
+}
+
+/* TITLE */
+h1{
+    text-shadow:0 0 20px cyan,0 0 40px magenta;
+    margin-bottom:15px;
+}
+
+/* INPUT */
+.input-box{
+    position:relative;
+    margin-top:15px;
+}
+
+.input-box input{
+    width:100%;
+    padding:12px 45px 12px 40px; /* right side extra space */
+}
+
+/* LEFT ICON */
+.input-box i{
+    position:absolute;
+    left:12px;
+    top:50%;
+    transform:translateY(-50%);
+    color:cyan;
+}
+
+
+/* BUTTON */
+.btn{
+    margin-top:20px;
+    padding:12px;
+    width:100%;
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(45deg,cyan,magenta);
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.btn:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 20px cyan,0 0 40px magenta;
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<div class="container">
+<div class="inner">
+
+<h1><i class="fas fa-leaf"></i> AI Crop Login</h1>
+
+<div class="input-box">
+    <i class="fas fa-user"></i>
+    <input type="shehzad" placeholder="Username" required>
+</div>
+
+<div class="input-box">
+    <i class="fas fa-lock"></i>
+    <input type="12345" id="password" placeholder="Password" required>
+    <i class="fas fa-eye eye" onclick="togglePass()"></i>
+</div>
+
+<button class="btn" onclick="login()">Login</button>
+
+</div>
+</div>
+
+<script>
+function togglePass(){
+    let pass = document.getElementById("password");
+    pass.type = pass.type === "password" ? "text" : "password";
+}
+
+/* 🔥 REDIRECT TO YOUR HOME PAGE */
+function login(){
+    window.location.href = "home.html";
+}
+
+/* ✨ PARTICLES BACKGROUND */
+let canvas = document.getElementById("bg");
+let ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+let particles = [];
+
+for(let i=0;i<80;i++){
+    particles.push({
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+        r:Math.random()*2,
+        dx:Math.random()*1,
+        dy:Math.random()*1
+    });
+}
+
+function animate(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="cyan";
+
+    particles.forEach(p=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fill();
+
+        p.x+=p.dx;
+        p.y+=p.dy;
+
+        if(p.x>canvas.width) p.x=0;
+        if(p.y>canvas.height) p.y=0;
+    });
+
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>
